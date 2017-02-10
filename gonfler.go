@@ -11,9 +11,6 @@ type Volume struct {
 	name string
 }
 
-func (Volume) Close() error {
-	return nil
-}
 
 type VolumeIterator struct {
 	volume *Volume
@@ -21,7 +18,7 @@ type VolumeIterator struct {
 }
 
 type Archive interface {
-	volumes() VolumeIterator
+	Volumes() VolumeIterator
 	Close() error
 }
 

@@ -12,7 +12,7 @@ func (archive RarArchive) Close() error {
 	return archive.handle.Close()
 }
 
-func (archive RarArchive) volumes() VolumeIterator {
+func (archive RarArchive) Volumes() VolumeIterator {
 
 	var next func() VolumeIterator
 	next = func() VolumeIterator {

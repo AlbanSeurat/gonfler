@@ -10,7 +10,7 @@ func (archive ZipArchive) Close() error {
 	return archive.handle.Close()
 }
 
-func (archive ZipArchive) volumes() VolumeIterator {
+func (archive ZipArchive) Volumes() VolumeIterator {
 	pos := 0
 	var next func() VolumeIterator
 	next = func() VolumeIterator {
@@ -37,27 +37,3 @@ func openZip(name string) (Archive, error) {
 		return nil, e
 	}
 }
-
-//func openZip(name string) (Archive, error) {
-//	h, e := zip.OpenReader(name)
-//	if h != nil {
-//		pos := 0
-//		var iterator VolumeIterator
-//		iterator = func() (*Volume, VolumeIterator) {
-//
-//			if len(h.File) == pos {
-//				return nil, nil
-//			} else {
-//				file := h.File[pos]
-//				pos++
-//				fileHandle , _ := file.Open()
-//				return &Volume{fileHandle,file.Name}, iterator
-//			}
-//		}
-//
-//		return &Archive{mime : "application/zip" , volumes : iterator}, nil
-//	} else {
-//		return nil, e
-//	}
-//	return nil, nil
-//}

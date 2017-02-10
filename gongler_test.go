@@ -4,6 +4,7 @@ import (
 	"fmt"
 	. "github.com/onsi/gomega"
 	"testing"
+	"bytes"
 )
 
 func TestOpen(t *testing.T) {
@@ -19,9 +20,11 @@ func TestOpenRar(t *testing.T) {
 	archive, err := Open("testdata/archive.rar")
 	Expect(err).ShouldNot(HaveOccurred())
 	defer archive.Close()
-	for it := archive.volumes(); it.next != nil; it = it.next() {
+	for it := archive.Volumes(); it.next != nil; it = it.next() {
 		fmt.Println(it.volume)
-		it.volume.Close()
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(it.volume)
+		fmt.Println(buf.String())
 	}
 }
 
@@ -32,8 +35,10 @@ func TestOpenZip(t *testing.T) {
 	Expect(err).ShouldNot(HaveOccurred())
 
 	defer archive.Close()
-	for it := archive.volumes(); it.next != nil; it = it.next() {
+	for it := archive.Volumes(); it.next != nil; it = it.next() {
 		fmt.Println(it.volume)
-		it.volume.Close()
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(it.volume)
+		fmt.Println(buf.String())
 	}
 }
