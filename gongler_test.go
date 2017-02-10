@@ -42,3 +42,19 @@ func TestOpenZip(t *testing.T) {
 		fmt.Println(buf.String())
 	}
 }
+
+
+func TestOpenTar(t *testing.T) {
+	RegisterTestingT(t)
+
+	archive, err := Open("testdata/archive.tar")
+	Expect(err).ShouldNot(HaveOccurred())
+
+	defer archive.Close()
+	for it := archive.Volumes(); it.next != nil; it = it.next() {
+		fmt.Println(it.volume)
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(it.volume)
+		fmt.Println(buf.String())
+	}
+}

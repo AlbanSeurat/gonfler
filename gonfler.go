@@ -32,6 +32,8 @@ func Open(name string) (Archive, error) {
 		return openRar(name)
 	case "application/zip":
 		return openZip(name)
+	case "application/x-tar":
+		return openTar(name)
 	default:
 		return nil, fmt.Errorf("%s is not a recognized file (%s)", name, fileType.MIME.Value)
 
