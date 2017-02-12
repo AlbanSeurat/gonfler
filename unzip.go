@@ -19,10 +19,10 @@ func (archive ZipArchive) Volumes() VolumeIterator {
 		} else {
 			file := archive.handle.File[pos]
 			pos++
-			fileHandle , _ := file.Open()
+			fileHandle, _ := file.Open()
 			return VolumeIterator{
 				volume: &Volume{fileHandle, file.Name},
-				next: next,
+				next:   next,
 			}
 		}
 	}

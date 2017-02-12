@@ -7,7 +7,7 @@ import (
 
 type TarArchive struct {
 	handle *tar.Reader
-	file *os.File
+	file   *os.File
 }
 
 func (archive TarArchive) Close() error {
@@ -23,7 +23,7 @@ func (archive TarArchive) Volumes() VolumeIterator {
 		} else {
 			return VolumeIterator{
 				volume: &Volume{archive.handle, header.Name},
-				next: next,
+				next:   next,
 			}
 		}
 	}
@@ -38,4 +38,3 @@ func openTar(name string) (Archive, error) {
 		return nil, e
 	}
 }
-

@@ -22,7 +22,7 @@ func (archive RarArchive) Volumes() VolumeIterator {
 		} else {
 			return VolumeIterator{
 				volume: &Volume{archive.handle, header.Name},
-				next: next,
+				next:   next,
 			}
 		}
 	}
@@ -30,10 +30,10 @@ func (archive RarArchive) Volumes() VolumeIterator {
 }
 
 func openRar(name string) (Archive, error) {
-		handle, e := rar.OpenReader(name, "")
-		if handle != nil {
-			return RarArchive{handle}, nil
-		} else {
-			return nil, e
-		}
+	handle, e := rar.OpenReader(name, "")
+	if handle != nil {
+		return RarArchive{handle}, nil
+	} else {
+		return nil, e
+	}
 }

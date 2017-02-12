@@ -11,7 +11,6 @@ type Volume struct {
 	name string
 }
 
-
 type VolumeIterator struct {
 	volume *Volume
 	next   func() VolumeIterator
@@ -34,6 +33,8 @@ func Open(name string) (Archive, error) {
 		return openZip(name)
 	case "application/x-tar":
 		return openTar(name)
+	case "application/x-7z-compressed":
+		return open7z(name)
 	default:
 		return nil, fmt.Errorf("%s is not a recognized file (%s)", name, fileType.MIME.Value)
 
