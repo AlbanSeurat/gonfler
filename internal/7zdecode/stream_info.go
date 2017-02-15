@@ -5,34 +5,45 @@ import (
 	"bufio"
 )
 
-func readStreamInfo(reader io.Reader) (uint64, error) {
+type streamInfo struct {
+	dataOffset uint64
+	folders []folder
+}
+
+func readStreamInfo(reader io.Reader) (*streamInfo, error) {
 	bufReader := bufio.NewReader(reader)
 	streamType, err := bufReader.ReadByte()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	offset := uint64(0)
+	ssInfo := new(streamInfo)
 	if streamType == kPackInfo {
-		offset, err = readEncodedUInt64(bufReader)
+		ssInfo.dataOffset, err = readEncodedUInt64(bufReader)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
-		readPackInfo(bufReader)
+		err = readPackInfo(bufReader)
+		if err != nil {
+			return nil, err
+		}
 		if streamType, err = bufReader.ReadByte() ; err != nil {
-			return 0, err
+			return nil, err
 		}
 	}
 
 	if streamType == kUnpackInfo {
-		readUnpackInfo(bufReader)
+		ssInfo.folders, err = readUnpackInfo(bufReader)
+		if err != nil {
+			return nil, err
+		}
 		if streamType, err = bufReader.ReadByte() ; err != nil {
-			return 0, err
+			return nil, err
 		}
 	}
 
 	if streamType != kEnd {
-		return 0, errInvalidFile
+		return nil, errInvalidFile
 	}
 
-	return offset, nil
+	return ssInfo, nil
 }

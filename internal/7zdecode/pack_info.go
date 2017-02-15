@@ -25,49 +25,53 @@ func readPackInfo(reader *bufio.Reader) error {
 }
 
 
-func readUnpackInfo(reader *bufio.Reader) error {
+func readUnpackInfo(reader *bufio.Reader) ([]folder, error) {
 	if err := readUntil(reader, kFolder) ; err != nil {
-		return err
+		return nil,err
 	}
 	numFolders, err := readEncodedUInt64(reader)
 	if err !=  nil {
-		return err
+		return nil,err
 	}
 	folders := make([]folder, numFolders)
 
 	external, err := readEncodedUInt64(reader)
 	if err != nil {
-		return err
+		return nil,err
 	}
 	switch external {
 	case 0:
 		for i := uint64(0) ; i < numFolders ; i++ {
 			folder, err := readFolder(reader)
 			if err != nil {
-				return err
+				return nil,err
 			} else {
 				folders[i] = *folder
 			}
 		}
 	case 1:
-		return errUnsupported
+		return nil, errUnsupported
 
 	}
 	err = readUntil(reader, kCodersUnpackSize)
 	if err != nil {
-		return err
+		return nil,err
 	}
 	for _, fold := range folders {
 		for i := 0 ; i < int(fold.numOutStreams) ; i++ {
 			_, err = readEncodedUInt64(reader)
 			if err != nil {
-				return err
+				return nil,err
 			}
 		}
 	}
-	return readEndOrCrc(reader, func() error {
+	err = readEndOrCrc(reader, func() error {
 		return readHashDigests(reader, int(numFolders))
 	})
+	if err != nil {
+		return nil,err
+	}
+	return folders, nil
 }
 
 func readHashDigests(reader *bufio.Reader, nbElem int) error {

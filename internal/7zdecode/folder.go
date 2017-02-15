@@ -5,6 +5,7 @@ import "bufio"
 type folder struct {
 	numInStreams  uint64
 	numOutStreams uint64
+	codecs	[]uint64
 }
 
 
@@ -14,7 +15,8 @@ func readFolder(reader *bufio.Reader) (*folder, error) {
 	if err != nil {
 		return nil, err
 	}
-	folder.numOutStreams += numCoders
+	folder.numOutStreams = numCoders
+	folder.codecs = make([]uint64, numCoders)
 
 	for i := uint64(0) ; i < numCoders ; i++ {
 		mainByte, err := reader.ReadByte()
@@ -36,6 +38,7 @@ func readFolder(reader *bufio.Reader) (*folder, error) {
 			}
 			codecId = codecId << 8 | uint64(codecIdPart)
 		}
+		folder.codecs[i] = codecId
 		if mainByte & 0x10 != 0 {
 			numInStream, err := readEncodedUInt64(reader)
 			if err != nil {
@@ -57,7 +60,7 @@ func readFolder(reader *bufio.Reader) (*folder, error) {
 			}
 		}
 	}
-
+	//TODO: what to do with this
 	for i := 0 ; i < int(numCoders - 1) ; i++ {
 		_ , err = readEncodedUInt64(reader)
 		if err != nil {
@@ -69,6 +72,7 @@ func readFolder(reader *bufio.Reader) (*folder, error) {
 		}
 	}
 
+	//TODO: what to do with this
 	numPackStreams := folder.numInStreams - (numCoders - 1)
 	for i:= 0 ; i < int(numPackStreams) ; i++ {
 		_ , err = readEncodedUInt64(reader)

@@ -4,48 +4,49 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"hash/crc32"
 	"io"
 	"os"
-	"fmt"
 )
 
 const (
-	//sigPrefix = []byte{'7', 'z', 0xBC, 0xAF, 0x27, 0x1C};
-	sigPrefix = "7z\xBC\xAF\x27\x1C"
-	maxOffset = uint64(^uint(0) >> 1)
-	maxLength = uint64(1 << 62)
+	sigPrefix     = "7z\xBC\xAF\x27\x1C"
+	sigPrefixSize = 32
+	maxOffset     = uint64(^uint(0) >> 1)
+	maxLength     = uint64(1 << 62)
 )
 
 var (
-	errNoSign     = errors.New("invalid 7z signature")
-	errCrcCheck   = errors.New("checksum error")
-	errNextHeader = errors.New("invalid header")
-	errInvalidFile = errors.New("invalid file")
+	errNoSign        = errors.New("invalid 7z signature")
+	errCrcCheck      = errors.New("checksum error")
+	errNextHeader    = errors.New("invalid header")
+	errInvalidFile   = errors.New("invalid file")
+	errCodecNotFound = errors.New("codec not found")
 
-	errUnsupported = errors.New( "unsupported")
+	errUnsupported = errors.New("unsupported")
 )
 
-type _version struct {
+type version struct {
 	Major byte
 	Minor byte
 }
 
-type _header struct {
+type header struct {
 	Signature  [6]byte
-	Version    _version
+	Version    version
 	CrcCheck   uint32
 	NextHeader [20]byte
 }
 
-type _nextHeader struct {
+type nextHeader struct {
 	EndHeaderOffset uint64
 	EndHeaderLen    uint64
 	CrcEndHeader    uint32
 }
 
-func headerCheck(reader io.Reader) (*_header, error) {
-	header := new(_header)
+func headerCheck(reader io.Reader) (*header, error) {
+	header := new(header)
 	err := binary.Read(reader, binary.LittleEndian, header)
 	if err != nil {
 		return nil, err
@@ -59,8 +60,8 @@ func headerCheck(reader io.Reader) (*_header, error) {
 	return header, nil
 }
 
-func readDatabase(header *_header, file *os.File) error {
-	nextHeader := new(_nextHeader)
+func readDatabase(header *header, file *os.File) error {
+	nextHeader := new(nextHeader)
 	err := binary.Read(bytes.NewReader(header.NextHeader[:]), binary.LittleEndian, nextHeader)
 	if err != nil {
 		return err
@@ -72,7 +73,7 @@ func readDatabase(header *_header, file *os.File) error {
 		return errNextHeader
 	}
 
-	_, err = file.Seek(int64(nextHeader.EndHeaderOffset), io.SeekCurrent)
+	_, err = file.Seek(int64(nextHeader.EndHeaderOffset), 1)
 	if err != nil {
 		return errNextHeader
 	}
@@ -83,12 +84,19 @@ func readDatabase(header *_header, file *os.File) error {
 		return errCrcCheck
 	}
 	fmt.Println(nextHeaderContent)
-	switch nextHeaderContent[0] {
-	case kHeader:
-		return nil
-	case kEncodedHeader:
-		readStreamInfo(bytes.NewReader(nextHeaderContent[1:]))
+
+	if nextHeaderContent[0] == kHeader {
+		return errUnsupported
+	} else if nextHeaderContent[0] != kEncodedHeader {
+		return errInvalidFile
 	}
+
+	ssInfo, err := readStreamInfo(bytes.NewReader(nextHeaderContent[1:]))
+	if err != nil {
+		return err
+	}
+
+	decodeStream(file, ssInfo, sigPrefixSize)
 
 	return nil
 }
