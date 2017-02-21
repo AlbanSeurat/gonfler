@@ -1,5 +1,7 @@
 package _zdecode
 
+import "github.com/alkpone/gonfler/internal/7zdecode/codecs"
+
 const (
 	copy = 0x0
 	lzma = 0x030101
@@ -8,37 +10,19 @@ const (
 )
 
 var (
-	codecs = map[int]codec {
-		lzma: lzmaCodec{},
+	codecMap = map[int]codec {
+		lzma: codecs.LzmaCodec{},
 		lzma2: lzma2Codec{},
 	}
 )
 
 type codec interface {
-	decode() error
-}
-
-func findCodec(id int) (codec, error) {
-	codec, ok := codecs[id]
-	if ok {
-		return codec, nil
-	} else {
-		return nil, errCodecNotFound
-	}
-}
-
-type lzmaCodec struct {
-
+	Decode(stream []byte) error
 }
 
 type lzma2Codec struct {
 
 }
-
-func (lzmaCodec) decode() error {
-	return nil
-}
-
-func (lzma2Codec) decode() error {
+func (lzma2Codec) Decode(stream []byte) error {
 	return nil
 }

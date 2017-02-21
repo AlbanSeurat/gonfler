@@ -2,7 +2,6 @@ package _zdecode
 
 import (
 	"os"
-	"fmt"
 )
 
 func decodeStream(file *os.File, info *streamInfo, offset uint64) error {
@@ -16,10 +15,13 @@ func decodeStream(file *os.File, info *streamInfo, offset uint64) error {
 	//TODO : packStreams init
 
 
-
 	for _, folder := range info.folders {
-		for _, codec := range folder.codecs {
-			fmt.Println(findCodec(int(codec)))
+		for _, codecSpec := range folder.codecs {
+			codec, found := codecMap[int(codecSpec.id)]
+			if !found {
+				return errCodecNotFound
+			}
+			codec.Decode(nil)
 		}
 	}
 

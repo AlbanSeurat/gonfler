@@ -83,8 +83,6 @@ func readDatabase(header *header, file *os.File) error {
 	if nextHeader.CrcEndHeader != crc32.Checksum(nextHeaderContent, crc32.IEEETable) {
 		return errCrcCheck
 	}
-	fmt.Println(nextHeaderContent)
-
 	if nextHeaderContent[0] == kHeader {
 		return errUnsupported
 	} else if nextHeaderContent[0] != kEncodedHeader {
@@ -96,7 +94,7 @@ func readDatabase(header *header, file *os.File) error {
 		return err
 	}
 
-	decodeStream(file, ssInfo, sigPrefixSize)
+	fmt.Println(decodeStream(file, ssInfo, sigPrefixSize))
 
 	return nil
 }

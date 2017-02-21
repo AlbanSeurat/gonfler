@@ -5,23 +5,28 @@ import (
 	"encoding/binary"
 )
 
-func readPackInfo(reader *bufio.Reader) error {
+func readPackInfo(reader *bufio.Reader) ([]uint64, error) {
 	numPackStreams, err := readEncodedUInt64(reader)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	if err = readUntil(reader, kSize); err != nil {
-		return err
+		return nil, err
 	}
 	packSizes := make([]uint64, numPackStreams)
 	for idx, _ := range packSizes {
 		if packSizes[idx], err = readEncodedUInt64(reader) ; err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return readEndOrCrc(reader, func() error {
+	//TODO - manage CRC block when present
+	err = readEndOrCrc(reader, func() error {
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	return packSizes, nil
 }
 
 
@@ -57,8 +62,10 @@ func readUnpackInfo(reader *bufio.Reader) ([]folder, error) {
 	if err != nil {
 		return nil,err
 	}
+
+	//TODO - look at what to do with unpackSize
 	for _, fold := range folders {
-		for i := 0 ; i < int(fold.numOutStreams) ; i++ {
+		for i := 0 ; i < len(fold.codecs) ; i++ {
 			_, err = readEncodedUInt64(reader)
 			if err != nil {
 				return nil,err

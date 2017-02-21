@@ -7,6 +7,7 @@ import (
 
 type streamInfo struct {
 	dataOffset uint64
+	packSize []uint64
 	folders []folder
 }
 
@@ -22,7 +23,7 @@ func readStreamInfo(reader io.Reader) (*streamInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = readPackInfo(bufReader)
+		ssInfo.packSize, err = readPackInfo(bufReader)
 		if err != nil {
 			return nil, err
 		}
