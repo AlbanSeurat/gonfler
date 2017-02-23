@@ -17,12 +17,18 @@ var (
 )
 
 type codec interface {
-	Decode(stream []byte) error
+	Props(codedProps []byte) error
+	Decode(stream []byte) ([]byte, error)
 }
 
 type lzma2Codec struct {
 
 }
-func (lzma2Codec) Decode(stream []byte) error {
+
+func (lzma2Codec) Props(codedProps []byte) error {
 	return nil
+}
+
+func (lzma2Codec) Decode(stream []byte)  ([]byte, error) {
+	return nil, nil
 }

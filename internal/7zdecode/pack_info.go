@@ -14,7 +14,7 @@ func readPackInfo(reader *bufio.Reader) ([]uint64, error) {
 		return nil, err
 	}
 	packSizes := make([]uint64, numPackStreams)
-	for idx, _ := range packSizes {
+	for idx := range packSizes {
 		if packSizes[idx], err = readEncodedUInt64(reader) ; err != nil {
 			return nil, err
 		}
