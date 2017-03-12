@@ -11,7 +11,7 @@ type outWindow struct {
 }
 
 
-func NewOutWindow(dictSite uint32) (*outWindow){
+func newOutWindow(dictSite uint32) (*outWindow){
 	window := new(outWindow)
 	window.buf = make([]byte, dictSite)
 	window.pos = 0

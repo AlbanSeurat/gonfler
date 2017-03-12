@@ -8,6 +8,12 @@ const (
 	probInit prob = 1 << (kNumBitModelTotalBits - 1)
 )
 
+func initProbs(probs []prob) {
+	for index := range probs {
+		probs[index] = probInit
+	}
+}
+
 // Dec decreases the probability. The decrease is proportional to the
 // probability value.
 func (p *prob) dec() {

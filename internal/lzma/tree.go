@@ -23,9 +23,13 @@ func (t *treedecoder) decode(rd *rangedecoder) (uint, error) {
 }
 
 func (t *treedecoder) reverseDecode(rd *rangedecoder) (uint, error) {
+	return reverseDecode(t.probs, rd)
+}
+
+func reverseDecode(probs []prob, rd *rangedecoder) (uint, error) {
 	m := uint(1)
 	symbol := uint(0)
-	for pos, prob := range t.probs {
+	for pos, prob := range probs {
 		bit, err := rd.decodeBit(&prob)
 		if err != nil {
 			return 0, err
