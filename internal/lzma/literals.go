@@ -11,7 +11,7 @@ func (lit *literals) initLiterals(lc, lp int) {
 	}
 }
 
-func (ld *LzmaDecoder) decodeLiterals(state uint, rep0 int) error {
+func (ld *LzmaDecoder) decodeLiteral(state uint, rep0 int) error {
 	prevByte := byte(0)
 	if !ld.out.isEmpty() {
 		prevByte = ld.out.getByte(1)

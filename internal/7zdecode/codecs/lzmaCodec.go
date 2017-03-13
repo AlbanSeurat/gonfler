@@ -9,8 +9,8 @@ type LzmaCodec struct {
 }
 
 func (LzmaCodec) Decode(stream []byte) ([]byte, error) {
-
-	return nil, nil
+	lzmaDecoder :=lzma.NewDecoder(stream)
+	return nil, lzmaDecoder.Decode(0)
 }
 
 func (codec LzmaCodec) Props(codecProps []byte) error {
